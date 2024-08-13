@@ -22,21 +22,15 @@ public class MainThreadClass {
 
 
         for(int i=0;i<4;i ++) {
-            executorService.submit(new ProduceNumbersThread(queue, numbers, MAX_COUNTS, counter, lock));
+            executorService.submit(new ProduceNumbersThread(queue, MAX_COUNTS, counter, lock));
         }
-
-
-
         List<Future<List<Integer>>> futureList = new ArrayList<>();
         for(int i=0;i<4;i++){
             futureList.add(executorService.submit(new ConsumeNumbersThread(queue, numbers,lock)));
         }
 
-
-
         executorService.shutdown();
         // Shutting down executor service
-
         System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
 
         List<Integer> randomNumbers = new ArrayList<>();
@@ -47,11 +41,8 @@ public class MainThreadClass {
                 throw new RuntimeException(e);
             }
         }
-
         for(Integer random: randomNumbers) {
             System.out.println("random = " + random);
         }
-
-
     }
 }

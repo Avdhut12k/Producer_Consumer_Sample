@@ -7,9 +7,9 @@ import java.util.concurrent.Callable;
 
 public class ConsumeNumbersThread implements Callable<List<Integer>> {
 
-    private BlockingDeque<Integer> queue;
+    private final BlockingDeque<Integer> queue;
 
-    private List<Integer> numbers;
+    private final List<Integer> numbers;
 
     private final Object lock;
 
@@ -24,31 +24,25 @@ public class ConsumeNumbersThread implements Callable<List<Integer>> {
 
         List<Integer> localRandom = new ArrayList<>();
 
-        while (true) {
-            synchronized (lock) {
+        synchronized (lock) {
+            while (true) {
                 if (queue.isEmpty()) {
                     lock.wait();
                 }
-            }
-
                 Integer poppedNumber = queue.poll();
-
-                    if(poppedNumber == null)
-                        continue;
-
-                    if(poppedNumber == -1) {
-                        break;
-                    }
-
-                    localRandom.add(poppedNumber);
-
+                if (poppedNumber == null)
+                    continue;
+                if (poppedNumber == -1) {
+                    break;
                 }
-
+                if (poppedNumber > 0)
+                    localRandom.add(poppedNumber);
+            }
+        }
         synchronized (numbers) {
             numbers.addAll(localRandom);
         }
-
-            System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
-            return localRandom;
+        System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
+        return localRandom;
         }
 }

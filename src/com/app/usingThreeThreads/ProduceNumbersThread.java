@@ -7,13 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProduceNumbersThread implements Runnable {
 
-    private BlockingDeque<Integer> queue;
+    private final BlockingDeque<Integer> queue;
+    private final int max_counts;
 
-    private List<Integer> numbers;
-
-    private int max_counts;
-
-    private AtomicInteger counter;
+    private final AtomicInteger counter;
 
     private final Object lock;
 
@@ -21,9 +18,8 @@ public class ProduceNumbersThread implements Runnable {
     private static final Random random = new Random(10000);
 
 
-    public ProduceNumbersThread(BlockingDeque<Integer> queue, List<Integer> numbers, int max_counts, AtomicInteger counter, Object lock) {
+    public ProduceNumbersThread(BlockingDeque<Integer> queue, int max_counts, AtomicInteger counter, Object lock) {
         this.queue = queue;
-        this.numbers = numbers;
         this.max_counts = max_counts;
         this.counter = counter;
         this.lock = lock;
@@ -31,15 +27,11 @@ public class ProduceNumbersThread implements Runnable {
 
     @Override
     public void run() {
-
         while (counter.get() < max_counts) {
-
             int currentCount = counter.incrementAndGet();
             if (currentCount >= max_counts) {
                 break;
             }
-
-
             queue.offer(random.nextInt());
             System.out.println("counter = " + counter);
             System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
@@ -49,9 +41,7 @@ public class ProduceNumbersThread implements Runnable {
                 lock.notifyAll();
             }
         }
-
         // After all production of numbers done u have to again inform to consumer and offer -1 so that they know that it's end of production.
-
         synchronized (lock) {
             for (int i = 0; i < 4; i++) {
                 queue.offer(-1);
